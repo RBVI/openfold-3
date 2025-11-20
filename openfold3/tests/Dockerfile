@@ -2,6 +2,7 @@
 FROM openfoldconsortium/openfold3:stable
 
 COPY openfold3 /opt/openfold3
+COPY environments/development.txt /opt/
 COPY setup.py /opt/
 
 WORKDIR /opt/
