@@ -3,14 +3,15 @@ from pathlib import Path
 
 PLACEHOLDER_PATH = "placeholder"
 
+
 def prep_deepspeed():
     # deepspeed requires the envvar set, but doesn't care about value
     if not os.environ["CUTLASS_PATH"]:
-        os.environ["CUTLASS_PATH"] = os.environ.get("CUTLASS_PATH", PLACEHOLDER_PATH) 
+        os.environ["CUTLASS_PATH"] = os.environ.get("CUTLASS_PATH", PLACEHOLDER_PATH)
 
 
 def prep_cutlass():
-    # Skip this step if cutlass package itself is available 
+    # Skip this step if cutlass package itself is available
     if os.environ["CUTLASS_PATH"] != PLACEHOLDER_PATH:
         return
 

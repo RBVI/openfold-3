@@ -724,7 +724,7 @@ class ColabFoldQueryRunner:
             # Create empty DataFrame with expected column structure (at least column 0)
             # to match the structure when file is read with header=None.
             logger.warning(
-                f"Colabfold returned no templates. \
+                "Colabfold returned no templates. \
              Proceeding without template alignments for this batch."
             )
             template_alignments = pd.DataFrame()

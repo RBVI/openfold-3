@@ -139,7 +139,7 @@ class TestColabFoldQueryRunner:
 
     @staticmethod
     def _make_empty_template_file(path: Path):
-        """Create an empty pdb70.m8 file to simulate ColabFold returning empty template file."""
+        """Create an empty pdb70.m8 file to simulate ColabFold returning empty template."""
         raw_main_dir = path / "raw" / "main"
         raw_main_dir.mkdir(parents=True, exist_ok=True)
         # Create an empty file (0 bytes)
@@ -334,7 +334,6 @@ class TestColabFoldQueryRunner:
         test_sequence = "TESTSEQUENCE"
         query = self._construct_monomer_query(test_sequence)
 
-        # Create an empty pdb70.m8 file (0 bytes) to simulate ColabFold returning empty template file
         self._make_empty_template_file(tmp_path)
 
         mapper = collect_colabfold_msa_data(query)
@@ -387,13 +386,13 @@ class TestColabFoldQueryRunner:
             for chain in query_obj.chains:
                 assert chain.template_alignment_file_path is None, (
                     f"Expected template_alignment_file_path to be None for chain "
-                    f"{chain.chain_ids} of query {query_name} when template file is empty, "
-                    f"but got {chain.template_alignment_file_path}"
+                    f"{chain.chain_ids} of query {query_name} when template file "
+                    f"is empty, but got {chain.template_alignment_file_path}"
                 )
                 assert chain.template_entry_chain_ids is None, (
                     f"Expected template_entry_chain_ids to be None for chain "
-                    f"{chain.chain_ids} of query {query_name} when template file is empty, "
-                    f"but got {chain.template_entry_chain_ids}"
+                    f"{chain.chain_ids} of query {query_name} when template file"
+                    f"is empty, but got {chain.template_entry_chain_ids}"
                 )
 
 
