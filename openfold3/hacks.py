@@ -1,18 +1,27 @@
+import importlib
 import os
 from pathlib import Path
-
-PLACEHOLDER_PATH = "placeholder"
 
 
 def prep_deepspeed():
     # deepspeed requires the envvar set, but doesn't care about value
-    if not os.environ["CUTLASS_PATH"]:
-        os.environ["CUTLASS_PATH"] = os.environ.get("CUTLASS_PATH", PLACEHOLDER_PATH)
+    os.environ["CUTLASS_PATH"] = os.environ.get("CUTLASS_PATH", "placeholder")
 
 
 def prep_cutlass():
-    # Skip this step if cutlass package itself is available
-    if os.environ["CUTLASS_PATH"] != PLACEHOLDER_PATH:
+    cutlass_lib_is_installed = importlib.util.find_spec("cutlass_library") is not None
+    cutlass_path = Path(os.environ.get("CUTLASS_PATH", "placeholder"))
+
+    # This workaround is used when the conda environment is created with the
+    # environments/production.yml + installation of cutlass repo
+    if not cutlass_lib_is_installed:
+        if not cutlass_path.exists():
+            raise OSError(
+                "CUTLASS_PATH environment variable is not set to a valid path, "
+                "and cutlass_library is not installed. Please install nvidia-cutlass"
+                "via pip or set CUTLASS_PATH to the root of a local cutlass clone."
+            )
+
         return
 
     # otherwise, apparently need to set the headers for cutlass
