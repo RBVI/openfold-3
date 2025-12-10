@@ -39,7 +39,8 @@ RUN /opt/openfold3/scripts/install_third_party_dependencies.sh
 
 # Install the package
 WORKDIR /opt/openfold3
-RUN python3 -m pip install --editable .
+# FIXME: somehow this works but `python3 -m pip install .` does not, causes import errors in pytest
+RUN python3 setup.py install
 
 # Set CUDA architecture for compilation (adjust based on your GPU)
 ENV TORCH_CUDA_ARCH_LIST="8.0;8.6;9.0"
