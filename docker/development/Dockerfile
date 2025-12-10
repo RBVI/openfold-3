@@ -47,10 +47,10 @@ ENV TORCH_CUDA_ARCH_LIST="8.0;8.6;9.0"
 # RUN python3 -c "import deepspeed; deepspeed.ops.op_builder.EvoformerAttnBuilder().load()" || \
 #     python3 -c "import deepspeed; print('DeepSpeed ops loaded successfully')"
 
-# Runtime stage - use devel image for full CUDA support
-FROM nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04 AS runtime
+# Development stage - use devel image for full CUDA support
+FROM nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04 AS development
 
-# Install runtime dependencies
+# Install development dependencies
 RUN apt-get update && apt-get install -y \
     libopenmpi3 \
     libaio1 \
