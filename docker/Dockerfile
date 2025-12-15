@@ -1,5 +1,6 @@
 # Full performance multi-stage build with complete CUDA toolchain
-FROM nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04 AS builder
+ARG CUDA_BASE_IMAGE_TAG=12.2.2-cudnn8-devel-ubuntu22.04
+FROM nvidia/cuda:${CUDA_BASE_IMAGE_TAG} AS builder
 
 # Install complete build dependencies including CUDA compiler tools
 RUN apt-get update && apt-get install -y \
@@ -13,12 +14,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install miniforge
+# FIXME this needs to be pinned, with more recent versions (25.11.0-1) the package resolution is stuck
 RUN wget -P /tmp \
     "https://github.com/conda-forge/miniforge/releases/download/25.3.1-0/Miniforge3-Linux-x86_64.sh" \
     && bash /tmp/Miniforge3-Linux-x86_64.sh -b -p /opt/conda \
     && rm /tmp/Miniforge3-Linux-x86_64.sh
 
 ENV PATH=/opt/conda/bin:$PATH
+ENV CONDA_PREFIX=/opt/conda
 
 # Copy and install dependencies with aggressive cleanup
 COPY environments/production.yml /opt/openfold3/environment.yml
@@ -26,8 +29,11 @@ RUN mamba env update -n base --file /opt/openfold3/environment.yml \
     && mamba clean --all --yes \
     && conda clean --all --yes
 
-# Copy the entire source tree
-COPY . /opt/openfold3/
+# Copy the minimal set of files needed to install the package
+COPY setup.py /opt/openfold3/
+COPY pyproject.toml /opt/openfold3/
+COPY openfold3/__init__.py /opt/openfold3/openfold3/
+COPY scripts/ /opt/openfold3/scripts/
 
 # Install third party dependencies
 WORKDIR /opt/
@@ -35,7 +41,8 @@ RUN /opt/openfold3/scripts/install_third_party_dependencies.sh
 
 # Install the package
 WORKDIR /opt/openfold3
-RUN python3 setup.py install
+# even `pip install --no-build-isolation` not actually working here, needs investigation
+RUN python setup.py install
 
 # Set CUDA architecture for compilation (adjust based on your GPU)
 ENV TORCH_CUDA_ARCH_LIST="8.0;8.6;9.0"
@@ -44,10 +51,11 @@ ENV TORCH_CUDA_ARCH_LIST="8.0;8.6;9.0"
 # RUN python3 -c "import deepspeed; deepspeed.ops.op_builder.EvoformerAttnBuilder().load()" || \
 #     python3 -c "import deepspeed; print('DeepSpeed ops loaded successfully')"
 
-# Runtime stage - use devel image for full CUDA support
-FROM nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04 AS runtime
+# Devel stage - use devel image for full CUDA support
+ARG CUDA_BASE_IMAGE_TAG=12.2.2-cudnn8-devel-ubuntu22.04
+FROM nvidia/cuda:${CUDA_BASE_IMAGE_TAG} AS devel
 
-# Install runtime dependencies
+# Install devel dependencies
 RUN apt-get update && apt-get install -y \
     libopenmpi3 \
     libaio1 \
@@ -85,7 +93,16 @@ ENV KMP_AFFINITY=none
 ENV LIBRARY_PATH=/opt/conda/lib:$LIBRARY_PATH
 ENV LD_LIBRARY_PATH=/opt/conda/lib:$LD_LIBRARY_PATH
 
-# Copy the entire source tree to the runtime image
-COPY --from=builder /opt/openfold3 /opt/openfold3
+# Copy the entire source tree directly (at the very end for optimal caching)
+COPY . /opt/openfold3
 
 WORKDIR /opt/openfold3
+
+# Test stage - build on devel layer with test dependencies
+FROM devel AS test
+
+COPY environments/requirements-test.txt /opt/openfold3/requirements-test.txt
+
+WORKDIR /opt/openfold3
+RUN pip install -r requirements-test.txt
+RUN pip install --no-deps --editable .
