@@ -54,6 +54,10 @@ def run_kalign(
         # The resulting MSA is stored in the variable
         alignment_result = result.stdout
 
+        # Strip header from kalign version 3.
+        if not alignment_result.startswith('>') and '\n>' in alignment_result:
+            alignment_result = alignment_result[alignment_result.find('\n>'):]
+
     except subprocess.CalledProcessError as e:
         print(f"Kalign command failed:\n{e.stderr}")
 
