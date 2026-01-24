@@ -84,6 +84,9 @@ model_selection_metric_weights_config = mlc.FrozenConfigDict(
     }
 )
 
+from sys import platform
+deepspeed_available = (platform != 'darwin')  # Deepspeed requires cuda-python, not available on Mac.
+
 model_config = mlc.ConfigDict(
     {
         "settings": {
@@ -92,7 +95,7 @@ model_config = mlc.ConfigDict(
                     "chunk_size": None,
                     # Use DeepSpeed memory-efficient attention kernel. Mutually
                     # exclusive with use_lma.
-                    "use_deepspeed_evo_attention": True,
+                    "use_deepspeed_evo_attention": deepspeed_available,
                     "use_cueq_triangle_kernels": False,
                     # Use Staats & Rabe's low-memory attention algorithm. Mutually
                     # exclusive with use_deepspeed_evo_attention.
@@ -104,7 +107,7 @@ model_config = mlc.ConfigDict(
                 },
                 "eval": {
                     "chunk_size": None,
-                    "use_deepspeed_evo_attention": True,
+                    "use_deepspeed_evo_attention":  deepspeed_available,
                     "use_cueq_triangle_kernels": False,
                     "use_lma": False,
                     "msa_module": {
