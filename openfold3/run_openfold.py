@@ -167,6 +167,12 @@ def predict(
         output_dir,
     )
 
+    if use_msa_server:
+        # Keep MSA results in output directory under msas
+        msa_comp_settings = expt_runner.experiment_config.msa_computation_settings
+        msa_comp_settings.msa_output_directory = expt_runner.experiment_config.experiment_settings.output_dir / "msas"
+        msa_comp_settings.cleanup_msa_dir = False
+    
     # Load inference query set
     query_set = InferenceQuerySet.from_json(query_json)
 
