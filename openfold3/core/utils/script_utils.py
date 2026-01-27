@@ -14,7 +14,6 @@
 
 import logging
 import platform
-import resource
 
 logging.basicConfig()
 logger = logging.getLogger(__file__)
@@ -37,6 +36,7 @@ def set_ulimits():
     # This is more than is needed,
     no_file_limit = 32768
 
+    import resource
     soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
 
     if no_file_limit > hard:
