@@ -28,7 +28,7 @@ dependencies = [
   "func_timeout",
   "lmdb", # == 1.6  # This verison might be required to avoid Error during training
   "ijson",
-  "deepspeed",
+  "deepspeed ; sys_platform != 'win32'",
   "pdbeccdutils",
   # For cutlass >=4, import library is cutlass_cppgen, but deepspeed is
   # currently using cutlass.

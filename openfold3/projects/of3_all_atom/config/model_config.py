@@ -85,7 +85,7 @@ model_selection_metric_weights_config = mlc.FrozenConfigDict(
 )
 
 from sys import platform
-deepspeed_available = (platform != 'darwin')  # Deepspeed requires cuda-python, not available on Mac.
+deepspeed_available = (platform == 'linux')  # Deepspeed is linux only
 
 model_config = mlc.ConfigDict(
     {
