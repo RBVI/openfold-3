@@ -448,7 +448,7 @@ def append_unresolved_segment(
     # Log what segment was added
     segment_start = segment.res_id[0]
     segment_end = segment.res_id[-1]
-    logger.info(
+    logger.debug(
         f"Added unresolved segment: chain_id={reference_atom.chain_id}, "
         f"span={segment_start}-{segment_end}, type={segment_type}"
     )
@@ -881,7 +881,7 @@ def add_unresolved_atoms_within_residue(
     # Add bonds within all the added atoms
     update_bond_list(extended_atom_array)
 
-    logger.info(
+    logger.debug(
         f"Added unresolved atoms for {len(modified_res_tuples)} residues: "
         f"{modified_res_tuples}"
     )

@@ -328,7 +328,7 @@ def query_colabfold_msa_server(
     # Extract a3m files
     if any(not os.path.isfile(a3m_file) for a3m_file in a3m_files):
         with tarfile.open(tar_gz_file) as tar_gz:
-            tar_gz.extractall(path)
+            tar_gz.extractall(path, filter='data')
 
     # Process templates
     if use_templates:
@@ -687,9 +687,9 @@ class ColabFoldQueryRunner:
         # TODO: add template alignments fetching code here by setting use_templates=True
         # TODO: replace prints with proper logging
         if len(self.colabfold_mapper.seqs) == 0:
-            print("No protein sequences found for main MSA generation. Skipping...")
+            logger.debug("No protein sequences found for main MSA generation. Skipping...")
             return
-        print(
+        logger.info(
             f"Submitting {len(self.colabfold_mapper.seqs)} sequences to the Colabfold"
             " MSA server for main MSAs..."
         )
@@ -774,9 +774,9 @@ class ColabFoldQueryRunner:
         # Submit queries for paired MSAss
         num_complexes = len(self.colabfold_mapper.complex_id_to_complex_group)
         if num_complexes == 0:
-            print("No complexes found for paired MSA generation. Skipping...")
+            logger.debug("No complexes found for paired MSA generation. Skipping...")
             return
-        print(
+        logger.info(
             f"Submitting {num_complexes} paired MSA queries"
             " to the Colabfold MSA server..."
         )
@@ -1036,7 +1036,7 @@ def preprocess_colabfold_msas(
     # Gather MSA data
     colabfold_mapper = collect_colabfold_msa_data(inference_query_set)
     output_directory = compute_settings.msa_output_directory
-    logger.warning(f"Using output directory: {output_directory} for ColabFold MSAs.")
+    logger.info(f"Using output directory: {output_directory} for ColabFold MSAs.")
 
     # Save mappings to file
     if compute_settings.save_mappings:

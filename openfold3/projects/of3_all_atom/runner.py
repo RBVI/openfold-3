@@ -607,13 +607,15 @@ class OpenFold3AllAtom(ModelRunner):
             and num_atoms > self.config.settings.memory.eval.per_sample_atom_cutoff
         )
 
+        logger.info(f'Computing confidence scores for {batch["query_id"]}')
         confidence_scores = get_confidence_scores(
             batch=batch,
             outputs=outputs,
             config=self.config,
             compute_per_sample=compute_per_sample,
         )
-
+        logger.info('Finished computing confidence scores')
+        
         return confidence_scores
 
     def predict_step(self, batch, batch_idx):
@@ -632,7 +634,7 @@ class OpenFold3AllAtom(ModelRunner):
         self.reseed(seed[0])  # TODO: assuming we have bs = 1 for now
 
         # Probably need to change the logic
-        logger.debug(
+        logger.info(
             f"Started inference for {', '.join(query_id)} on rank {self.global_rank} "
             f"step {self.global_step}"
         )

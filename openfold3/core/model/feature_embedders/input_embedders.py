@@ -124,6 +124,8 @@ class InputEmbedderAllAtom(nn.Module):
             z:
                 [*, N_token, N_token, C_z] Pair representation
         """
+        import warnings
+        warnings.filterwarnings('ignore', message='.*CUDA is not available.*')
         with torch.amp.autocast(device_type="cuda", dtype=torch.float32):
             a, _, _, _ = self.atom_attn_enc(
                 batch=batch,

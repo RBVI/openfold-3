@@ -277,6 +277,7 @@ class ExperimentRunner(ABC):
                 "strategy": self.strategy,
                 "callbacks": self.callbacks,
                 "logger": self.loggers,
+                "enable_progress_bar": False,
                 # If DeepSpeed is enabled, these values will be passed to the DS config
                 "gradient_clip_val": self.model_config.settings.gradient_clipping,
                 "gradient_clip_algorithm": "norm",
@@ -640,8 +641,11 @@ class InferenceExperimentRunner(ExperimentRunner):
         self._log_model_config()
         logger.info(f"Loading weights from {self.ckpt_path}")
         ckpt = load_checkpoint(self.ckpt_path)
+        logger.info("Finished loading weights")
         state_dict = get_state_dict_from_checkpoint(ckpt, init_from_ema_weights=True)
+        logger.info('Loading model state dictionary')
         self.lightning_module.load_state_dict(state_dict, strict=True)
+        logger.info('Finished loading model state dictionary')
 
     def run(self, inference_query_set) -> None:
         """Set up the experiment environment."""
@@ -655,12 +659,13 @@ class InferenceExperimentRunner(ExperimentRunner):
                 return
 
         self.inference_query_set = inference_query_set
-        logger.info("Beginning inference prediction")
+        logger.info("Beginning prediction inference")
         self.trainer.predict(
             model=self.lightning_module,
             datamodule=self.lightning_data_module,
             return_predictions=False,
         )
+        logger.info("Finished prediction inference")
 
     @cached_property
     def callbacks(self):
@@ -726,7 +731,7 @@ class InferenceExperimentRunner(ExperimentRunner):
     def cleanup(self):
         """Cleanup directories from colabfold MSA"""
         if self.is_rank_zero and self.log_dir.is_dir() and not os.listdir(self.log_dir):
-            print("Removing empty log directory...")
+            logger.debug("Removing empty log directory...")
             self.log_dir.rmdir()
 
         if self.use_msa_server and self.is_rank_zero:

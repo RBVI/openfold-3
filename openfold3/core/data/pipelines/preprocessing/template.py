@@ -15,6 +15,8 @@
 """Preprocessing pipelines for template data ran before training/evaluation."""
 
 import logging
+logger = logging.getLogger(__name__)
+
 import multiprocessing as mp
 import os
 import random
@@ -1718,8 +1720,8 @@ class TemplatePreprocessor:
 
     def __call__(self) -> None:
         # Preprocess template alignments into template cache entries
+        logger.info(f"Preprocessing templates for {len(self.inputs)} chains")
         if len(self.inputs) == 1:
-            print("Preprocessing templates...")
             self._preprocess_templates_for_query(self.inputs[0])
         elif len(self.inputs) > 1:
             manager = mp.Manager()
@@ -1746,6 +1748,8 @@ class TemplatePreprocessor:
             self._update_dataset_cache()
         elif isinstance(self.input_set, InferenceQuerySet):
             self._update_inference_query_set()
+
+        logger.info("Finished preprocessing templates")
 
     def _preprocess_templates_for_query(
         self,

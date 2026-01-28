@@ -20,6 +20,13 @@ Main run script for OpenFold3. Please see the README for usage details.
 # ruff: noqa: F821
 
 import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+import sys, os
+if sys.platform != 'linux' and 'TORCH_LOGS' not in os.environ:
+    # Suppress torch logging of "NOTE: Redirects are currently not supported in Windows or MacOs."
+    os.environ['TORCH_LOGS'] = '-distributed'
+
 from pathlib import Path
 
 import click

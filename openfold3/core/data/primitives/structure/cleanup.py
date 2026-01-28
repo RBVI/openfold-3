@@ -240,7 +240,7 @@ def remove_hydrogens(atom_array: AtomArray) -> AtomArray:
     n_hydrogens_removed = atom_array_len_prev - atom_array_len_new
 
     if n_hydrogens_removed > 0:
-        logger.info(f"Removed {n_hydrogens_removed} hydrogen atoms.")
+        logger.debug(f"Removed {n_hydrogens_removed} hydrogen atoms.")
 
     return atom_array
 

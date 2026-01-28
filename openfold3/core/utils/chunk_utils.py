@@ -355,7 +355,7 @@ class ChunkSizeTuner:
 
     @staticmethod
     def _determine_favorable_chunk_size(fn, args, min_chunk_size, max_chunk_size):
-        logging.info("Tuning chunk size...")
+        logging.debug("Tuning chunk size...")
 
         if min_chunk_size >= max_chunk_size:
             return min_chunk_size
