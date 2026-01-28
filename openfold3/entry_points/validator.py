@@ -61,18 +61,10 @@ def _maybe_download_parameters(target_path: Path) -> None:
         size_bytes = response["ContentLength"]
         size_gb = size_bytes / (1024**3)
 
-        # Ask for confirmation with file size
-        confirm = input(
-            f"Download {checkpoint_path} ({size_gb:.2f} GB) "
-            f"from s3://{openfold_bucket} to {target_path}? (yes/no): "
-        )
-
-        if confirm.lower() in ["yes", "y"]:
-            logger.info(f"Downloading to {target_path}...")
-            s3.download_file(openfold_bucket, checkpoint_path, target_path)
-            logger.info("Download complete!")
-        else:
-            logger.warning("Download cancelled")
+        logger.info(f"Downloading model weights {checkpoint_path} ({size_gb:.2f} GB) "
+                    f"from s3://{openfold_bucket} to {target_path}")
+        s3.download_file(openfold_bucket, checkpoint_path, target_path)
+        logger.info("Download complete!")
 
     except Exception as e:
         print(f"Error: {e}")
