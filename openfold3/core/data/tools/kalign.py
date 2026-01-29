@@ -39,16 +39,20 @@ def run_kalign(
         str:
             The aligned sequences in A3M format as a string.
     """
-    kalign_available = shutil.which("kalign") is not None
+    import sys
+    from os.path import dirname, join, exists
+    kalign_exe = join(dirname(sys.executable), 'kalign')
+    if not exists(kalign_exe):
+        kalign_exe = shutil.which("kalign")
 
-    if not kalign_available:
+    if kalign_exe is None:
         raise RuntimeError(
             "Kalign is not available. Please install it and ensure it is in your PATH."
         )
 
     try:
         result = subprocess.run(
-            ["kalign"], input=a3m_string, capture_output=True, text=True, check=True
+            [kalign_exe], input=a3m_string, capture_output=True, text=True, check=True
         )
 
         # The resulting MSA is stored in the variable
