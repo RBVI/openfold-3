@@ -105,8 +105,8 @@ class DataModuleArgs(BaseModel):
     model_config = PydanticConfigDict(extra="forbid")
     batch_size: int = 1
     data_seed: int | None = None
-    num_workers: int = 10
-    num_workers_validation: int = 4
+    num_workers: int = 0
+    num_workers_validation: int = 0
     epoch_len: int = 4
 
 
