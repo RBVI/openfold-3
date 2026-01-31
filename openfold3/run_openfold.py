@@ -136,6 +136,12 @@ def train(runner_yaml: Path, seed: int | None = None, data_seed: int | None = No
     required=False,
     help="Output directory for writing results",
 )
+@click.option(
+    "--msa_and_templates_only",
+    type=bool,
+    default=False,
+    help="Use ColabFold MSA server to get MSAs and templates but don't predict structures.",
+)
 def predict(
     query_json: Path,
     inference_ckpt_path: Path | None = None,
@@ -145,6 +151,7 @@ def predict(
     use_msa_server: bool = True,
     use_templates: bool = False,
     output_dir: Path | None = None,
+    msa_and_templates_only: bool = False,
 ):
     """Perform inference on a set of queries defined in the query_json."""
     _torch_gpu_setup()
@@ -177,6 +184,11 @@ def predict(
     # Load inference query set
     query_set = InferenceQuerySet.from_json(query_json)
 
+    if msa_and_templates_only:
+        expt_runner.inference_query_set = query_set
+        expt_runner.lightning_data_module.prepare_data()
+        return
+        
     # Run the forward pass
     expt_runner.setup()
     expt_runner.run(query_set)
