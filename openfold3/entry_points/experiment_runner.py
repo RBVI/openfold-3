@@ -735,7 +735,7 @@ class InferenceExperimentRunner(ExperimentRunner):
             self.log_dir.rmdir()
 
         if self.use_msa_server and self.is_rank_zero:
-            print("Cleaning up MSA directories...")
+            logger.debug("Cleaning up MSA directories...")
 
             # Always remove raw directory
             # TODO: Change to use ColabFoldQueryRunner.cleanup() when
@@ -744,7 +744,7 @@ class InferenceExperimentRunner(ExperimentRunner):
                 self.experiment_config.msa_computation_settings.msa_output_directory
                 / "raw"
             )
-            self._maybe_remove_dir(raw_colabfold_msa_path)
+            #self._maybe_remove_dir(raw_colabfold_msa_path)
             if self.experiment_config.msa_computation_settings.cleanup_msa_dir:
                 msa_output_dir = (
                     self.experiment_config.msa_computation_settings.msa_output_directory
