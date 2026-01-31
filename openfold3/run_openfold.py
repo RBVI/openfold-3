@@ -161,20 +161,6 @@ def predict(
 
     logging.basicConfig(level=logging.INFO)
     runner_args = config_utils.load_yaml(runner_yaml) if runner_yaml else dict()
-
-    if use_msa_server:
-        # Keep MSAs in output directory
-        out_dir = output_dir if output_dir else Path("./")
-        runner_args.setdefault('msa_computation_settings',
-                               {'msa_output_directory': out_dir / 'colabfold_msas',
-                                'cleanup_msa_dir': False,
-                                'save_mappings': True})
-
-    if use_templates:
-        # Keep templates in output directory
-        out_dir = output_dir if output_dir else Path("./")
-        runner_args.setdefault('template_preprocessor_settings',
-                               {'output_directory': out_dir / 'colabfold_templates'})
         
     expt_config = InferenceExperimentConfig(
         inference_ckpt_path=inference_ckpt_path, **runner_args
