@@ -142,6 +142,12 @@ def train(runner_yaml: Path, seed: int | None = None, data_seed: int | None = No
     default=False,
     help="Use ColabFold MSA server to get MSAs and templates but don't predict structures.",
 )
+@click.option(
+    "--device",
+    type=click.Choice(["gpu", "cpu", "tpu"]),
+    help="The device to use for prediction: gpu, cpu, tpu. Default is gpu.",
+    default="gpu",
+)
 def predict(
     query_json: Path,
     inference_ckpt_path: Path | None = None,
@@ -152,6 +158,7 @@ def predict(
     use_templates: bool = False,
     output_dir: Path | None = None,
     msa_and_templates_only: bool = False,
+    device: str = "gpu",
 ):
     """Perform inference on a set of queries defined in the query_json."""
     _torch_gpu_setup()
@@ -168,10 +175,12 @@ def predict(
 
     logging.basicConfig(level=logging.INFO)
     runner_args = config_utils.load_yaml(runner_yaml) if runner_yaml else dict()
-        
+
     expt_config = InferenceExperimentConfig(
         inference_ckpt_path=inference_ckpt_path, **runner_args
     )
+    expt_config.pl_trainer_args.accelerator = device
+
     expt_runner = InferenceExperimentRunner(
         expt_config,
         num_diffusion_samples,
