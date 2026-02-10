@@ -204,6 +204,8 @@ def predict(
         use_templates,
         output_dir,
     )
+    if device == 'cpu':
+        expt_runner.model_config['settings']['memory']['eval']['use_deepspeed_evo_attention'] = False
     
     # Load inference query set
     query_set = InferenceQuerySet.from_json(query_json)
