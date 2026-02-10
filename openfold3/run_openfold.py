@@ -148,6 +148,12 @@ def train(runner_yaml: Path, seed: int | None = None, data_seed: int | None = No
     help="The device to use for prediction: gpu, cpu, tpu. Default is gpu.",
     default="gpu",
 )
+@click.option(
+    "--precision",
+    type=click.Choice(["bf16-mixed", "32-true"]),
+    help="The floating point precision used by pytorch_lightning.Trainer. Default is bf16-mixed when using CUDA on Linux or Windows, otherwise 32-true.",
+    default=None,
+)
 def predict(
     query_json: Path,
     inference_ckpt_path: Path | None = None,
@@ -159,6 +165,7 @@ def predict(
     output_dir: Path | None = None,
     msa_and_templates_only: bool = False,
     device: str = "gpu",
+    precision: str | None = None,
 ):
     """Perform inference on a set of queries defined in the query_json."""
     _torch_gpu_setup()
@@ -181,6 +188,14 @@ def predict(
     )
     expt_config.pl_trainer_args.accelerator = device
 
+    if precision is None:
+        precision = 32    # bfloat16 is many times slower than float32 except with Nvidia CUDA.
+        if sys.platform in ('linux', 'win32') and device == 'gpu':
+            import torch
+            if torch.cuda.is_available():
+                precision = "bf16-mixed"
+    expt_config.pl_trainer_args.precision = precision
+    
     expt_runner = InferenceExperimentRunner(
         expt_config,
         num_diffusion_samples,
