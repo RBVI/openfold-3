@@ -607,7 +607,7 @@ class OpenFold3AllAtom(ModelRunner):
             and num_atoms > self.config.settings.memory.eval.per_sample_atom_cutoff
         )
 
-        logger.info(f'Computing confidence scores for {batch["query_id"]}')
+        logger.info(f'Computing confidence scores for {", ".join(batch["query_id"])}')
         confidence_scores = get_confidence_scores(
             batch=batch,
             outputs=outputs,
@@ -635,7 +635,7 @@ class OpenFold3AllAtom(ModelRunner):
 
         # Probably need to change the logic
         logger.info(
-            f"Started inference for {', '.join(query_id)} on rank {self.global_rank} "
+            f"Started inference for {', '.join(query_id)} ({batch_idx+1}) on rank {self.global_rank} "
             f"step {self.global_step}"
         )
         try:
