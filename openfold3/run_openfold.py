@@ -136,6 +136,24 @@ def train(runner_yaml: Path, seed: int | None = None, data_seed: int | None = No
     required=False,
     help="Output directory for writing results",
 )
+@click.option(
+    "--msa_and_templates_only",
+    type=bool,
+    default=False,
+    help="Use ColabFold MSA server to get MSAs and templates but don't predict structures.",
+)
+@click.option(
+    "--device",
+    type=click.Choice(["gpu", "cpu", "tpu"]),
+    help="The device to use for prediction: gpu, cpu, tpu. Default is gpu.",
+    default="gpu",
+)
+@click.option(
+    "--precision",
+    type=click.Choice(["bf16-mixed", "32-true"]),
+    help="The floating point precision used by pytorch_lightning.Trainer. Default is bf16-mixed when using CUDA on Linux or Windows, otherwise 32-true.",
+    default=None,
+)
 def predict(
     query_json: Path,
     inference_ckpt_path: Path | None = None,
@@ -145,6 +163,9 @@ def predict(
     use_msa_server: bool = True,
     use_templates: bool = False,
     output_dir: Path | None = None,
+    msa_and_templates_only: bool = False,
+    device: str = "gpu",
+    precision: str | None = None,
 ):
     """Perform inference on a set of queries defined in the query_json."""
     _torch_gpu_setup()
@@ -162,23 +183,19 @@ def predict(
     logging.basicConfig(level=logging.INFO)
     runner_args = config_utils.load_yaml(runner_yaml) if runner_yaml else dict()
 
-    if use_msa_server:
-        # Keep MSAs in output directory
-        out_dir = output_dir if output_dir else Path("./")
-        runner_args.setdefault('msa_computation_settings',
-                               {'msa_output_directory': out_dir / 'colabfold_msas',
-                                'cleanup_msa_dir': False,
-                                'save_mappings': True})
-
-    if use_templates:
-        # Keep templates in output directory
-        out_dir = output_dir if output_dir else Path("./")
-        runner_args.setdefault('template_preprocessor_settings',
-                               {'output_directory': out_dir / 'colabfold_templates'})
-        
     expt_config = InferenceExperimentConfig(
         inference_ckpt_path=inference_ckpt_path, **runner_args
     )
+    expt_config.pl_trainer_args.accelerator = device
+
+    if precision is None:
+        precision = 32    # bfloat16 is many times slower than float32 except with Nvidia CUDA.
+        if sys.platform in ('linux', 'win32') and device == 'gpu':
+            import torch
+            if torch.cuda.is_available():
+                precision = "bf16-mixed"
+    expt_config.pl_trainer_args.precision = precision
+    
     expt_runner = InferenceExperimentRunner(
         expt_config,
         num_diffusion_samples,
@@ -187,10 +204,17 @@ def predict(
         use_templates,
         output_dir,
     )
+    if device == 'cpu':
+        expt_runner.model_config['settings']['memory']['eval']['use_deepspeed_evo_attention'] = False
     
     # Load inference query set
     query_set = InferenceQuerySet.from_json(query_json)
 
+    if msa_and_templates_only:
+        expt_runner.inference_query_set = query_set
+        expt_runner.lightning_data_module.prepare_data()
+        return
+        
     # Run the forward pass
     expt_runner.setup()
     expt_runner.run(query_set)
