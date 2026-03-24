@@ -113,11 +113,13 @@ def setup_param_directory(
     else:
         # First time setup
         logger.info("Downloading OpenFold3 parameters...")
-        user_input = input(
-            "Please specify the directory for parameter download "
-            f"(default: {openfold_cache}): "
-        ).strip()
-
+        if prompt:
+            user_input = input(
+                "Please specify the directory for parameter download "
+                f"(default: {openfold_cache}): "
+            ).strip()
+        else:
+            user_input = openfold_cache
         # Use user input if provided, otherwise use default (the cache directory)
         if user_input:
             param_dir = Path(user_input).expanduser()
