@@ -3,12 +3,12 @@
 ## 1. High-level Structure
 The OpenFold3 inference pipeline takes a single JSON file as input, specifying the data and options required for structure prediction. This file can define multiple prediction targets (`queries`), which can be proteins, including individual protein chains and complexes, nucleic acids, and ligands. Multiple queries can be combined as follows: 
 
-```json
+```text
 {
   "queries": {
     "query_1": { ... },
     "query_2": { ... }
-  },
+  }
 }
 ```
 
@@ -21,7 +21,7 @@ The OpenFold3 inference pipeline takes a single JSON file as input, specifying t
 **Reference Fields**
 - `seeds` *(list, reference)*
   - This section is present in the logged `inference_query_set.json` that is part of the model run output as a reference of the seeds used.
-  - However, this field should not be included as part of the input of an input `query.json`. Instead, the user should use either the `--num_model_seeds` command line argument or specify seeds in the `runner.yml`. See {ref}`Custom Model Seeds for more details <custom-random-seeds-inference>` 
+  - However, this field should not be included as part of the input of an input `query.json`. Instead, the user should use either the `--num-model-seeds` command line argument or specify seeds in the `runner.yml`. See {ref}`Custom Model Seeds for more details <custom-random-seeds-inference>` 
 
 (2-queries)=
 ## 2. Queries
@@ -272,8 +272,9 @@ Below is a complete example of an input JSON file specifying a single bioassembl
 ```
 
 Additional example input JSON files can be found here:
-- [Single-chain protein (monomer)](https://github.com/aqlaboratory/openfold-3/tree/main/examples/example_inference_inputs/query_ubiquitin.json): Ubiquitin (PDB: 1UBQ)
-- [Multi-chain protein with identical chains (homomer)](https://github.com/aqlaboratory/openfold-3/tree/main/examples/example_inference_inputs/query_homomer.json): GCN4 leucine zipper (PDB: 2ZTA)
-- [Multi-chain protein with different chains (multimer)](https://github.com/aqlaboratory/openfold-3/tree/main/examples/example_inference_inputs/query_multimer.json): Deoxy human hemoglobin (PDB: 1A3N)
-- [Protein-ligand complex](https://github.com/aqlaboratory/openfold-3/tree/main/examples/example_inference_inputs/query_protein_ligand.json): Mcl-1 with small molecule inhibitor (PDB: 5FDR)
-- [Multiple Protein-ligand complexes](https://github.com/aqlaboratory/openfold-3/tree/main/examples/example_inference_inputs/query_protein_ligand_multiple.json): Two queries with Mcl-1 and different small molecule inhibitors (PDB: 5FDR)
+- [Single-chain protein (monomer)](../../examples/example_inference_inputs/query_ubiquitin.json): Ubiquitin (PDB: 1UBQ)
+- [Multi-chain protein with identical chains (homomer)](../../examples/example_inference_inputs/query_homomer.json): GCN4 leucine zipper (PDB: 2ZTA)
+- [Multi-chain protein with different chains (multimer)](../../examples/example_inference_inputs/query_multimer.json): Deoxy human hemoglobin (PDB: 1A3N)
+- [Protein-ligand complex](../../examples/example_inference_inputs/query_protein_ligand.json): Mcl-1 with small molecule inhibitor (PDB: 5FDR)
+- [Sigle protein-single ligand complex](../../examples/example_inference_inputs/query_single_protein_single_ligand.json): T4 Lysozyme (L99A mutant) with toluene (PDB: 7L39)
+- [Multiple Protein-ligand complexes](../../examples/example_inference_inputs/query_protein_ligand_multiple.json): Two queries with Mcl-1 and different small molecule inhibitors (PDB: 5FDR)

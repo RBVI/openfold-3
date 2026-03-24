@@ -1,4 +1,4 @@
-# Copyright 2025 AlQuraishi Laboratory
+# Copyright 2026 AlQuraishi Laboratory
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,33 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import shutil
-import subprocess
 from functools import lru_cache
+
+import kalign
 
 
 @lru_cache(maxsize=512)
+def _run_kalign_cached(sequences: tuple[str, ...]) -> str:
+    """Wrapper around kalign.align with caching."""
+    return kalign.align(list(sequences))
+
+
 def run_kalign(
-    a3m_string: str,
-) -> str:
+    sequences: list[str],
+) -> list[str]:
     """Runs Kalign on the provided A3M string and returns the aligned sequences.
 
     Args:
-        a3m_string (str):
-            A3M formatted string containing the sequences to be aligned. In the template
-            pipeline, the first sequence is the query, and the rest are templates
+        sequences (list[str]):
+            Sequences to be aligned. In the template pipeline,
+            the first sequence is the query, and the rest are templates
             sequences to be realigned to it from hmmsearch.
-
-    Raises:
-        RuntimeError:
-            If Kalign is not available.
-        subprocess.CalledProcessError:
-            If the Kalign command fails.
-
     Returns:
-        str:
-            The aligned sequences in A3M format as a string.
+        list:
+            The aligned sequences as a list of strings.
     """
+    # return _run_kalign_cached(tuple(sequences))
+    # kalign-python is not available on Windows so use OpenFold preview1 method of calling kalign2 executable.
     import sys
     from os.path import dirname, join, exists
     kalign_exe = join(dirname(sys.executable), 'kalign')
