@@ -14,12 +14,12 @@
 
 from functools import lru_cache
 
-import kalign
 
 
 @lru_cache(maxsize=512)
 def _run_kalign_cached(sequences: tuple[str, ...]) -> str:
     """Wrapper around kalign.align with caching."""
+    import kalign
     return kalign.align(list(sequences))
 
 
