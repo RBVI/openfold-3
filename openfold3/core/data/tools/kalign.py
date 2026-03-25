@@ -19,8 +19,13 @@ from functools import lru_cache
 @lru_cache(maxsize=512)
 def _run_kalign_cached(sequences: tuple[str, ...]) -> str:
     """Wrapper around kalign.align with caching."""
-    import kalign
-    return kalign.align(list(sequences))
+    from sys import platform
+    if platform == 'win32':
+        # The Python kalign module is not available on Windows
+        return _run_kalign_exe(sequences)
+    else:
+        import kalign
+        return kalign.align(list(sequences))
 
 
 def run_kalign(
@@ -37,8 +42,25 @@ def run_kalign(
         list:
             The aligned sequences as a list of strings.
     """
-    # return _run_kalign_cached(tuple(sequences))
-    # kalign-python is not available on Windows so use OpenFold preview1 method of calling kalign2 executable.
+    return _run_kalign_cached(tuple(sequences))
+
+def _run_kalign_exe(
+    sequences: list[str],
+) -> list[str]:
+    """
+    Runs the kalign executable in a subprocess and returns the aligned sequences.
+    This is used on Windows because there is currently (March 2026) no PyPi kalign
+    package for Windows.
+
+    Args:
+        sequences (list[str]):
+            Sequences to be aligned. In the template pipeline,
+            the first sequence is the query, and the rest are templates
+            sequences to be realigned to it from hmmsearch.
+    Returns:
+        list:
+            The aligned sequences as a list of strings.
+    """
     import sys
     from os.path import dirname, join, exists
     kalign_exe = join(dirname(sys.executable), 'kalign')
@@ -50,6 +72,8 @@ def run_kalign(
             "Kalign is not available. Please install it and ensure it is in your PATH."
         )
 
+    a3m_string = '\n'.join(f'>sequence_{i}\n{seq}' for i,seq in enumerate(sequences))
+    import subprocess
     try:
         result = subprocess.run(
             [kalign_exe], input=a3m_string, capture_output=True, text=True, check=True
@@ -65,4 +89,19 @@ def run_kalign(
     except subprocess.CalledProcessError as e:
         print(f"Kalign command failed:\n{e.stderr}")
 
-    return alignment_result
+    # Convert fasta/a3m to list of sequences.
+    aligned_seqs = []
+    seq = ''
+    for line in alignment_result.split('\n'):
+        if line.startswith('>'):
+            if seq:
+                aligned_seqs.append(seq)
+                seq = ''
+        else:
+            seq += line
+    aligned_seqs.append(seq)
+
+    with open('/Users/goddard/Desktop/kalign.out', 'a') as f:
+        f.write(f'input: {" + ".join(sequences)}\noutput: {" + ".join(aligned_seqs)}\n')
+
+    return aligned_seqs

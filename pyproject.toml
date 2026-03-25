@@ -36,7 +36,7 @@ dependencies = [
   # For cutlass >=4, import library is cutlass_cppgen, but deepspeed is
   # currently using cutlass.
   "nvidia-cutlass <4 ; sys_platform != 'darwin'",
-#  "kalign-python",
+  "kalign-python ; sys_platform != 'win32'",
 
   # additional pins
 
