@@ -20,8 +20,9 @@ from functools import lru_cache
 def _run_kalign_cached(sequences: tuple[str, ...]) -> str:
     """Wrapper around kalign.align with caching."""
     from sys import platform
-    if platform == 'win32':
-        # The Python kalign module is not available on Windows
+    if platform == 'win32' or platform == 'darwin':
+        # The Python kalign module is not available on Windows.
+        # The Python kalign module aborts on Mac due to duplicate libomp.dylib.
         return _run_kalign_exe(sequences)
     else:
         import kalign
@@ -100,8 +101,5 @@ def _run_kalign_exe(
         else:
             seq += line
     aligned_seqs.append(seq)
-
-    with open('/Users/goddard/Desktop/kalign.out', 'a') as f:
-        f.write(f'input: {" + ".join(sequences)}\noutput: {" + ".join(aligned_seqs)}\n')
 
     return aligned_seqs
