@@ -83,6 +83,13 @@ def train(runner_yaml: Path, seed: int | None = None, data_seed: int | None = No
     expt_runner.setup()
     expt_runner.run()
 
+def validate_int_list(ctx, param, value):
+    if value is None:
+        return []
+    try:
+        return [int(x.strip()) for x in value.split(',')]
+    except ValueError:
+        raise click.BadParameter('Must be a comma-separated list of integers.')
 
 @cli.command()
 @click.option(
@@ -171,6 +178,12 @@ def train(runner_yaml: Path, seed: int | None = None, data_seed: int | None = No
     help="The floating point precision used by pytorch_lightning.Trainer. Default is bf16-mixed when using CUDA on Linux or Windows, otherwise 32-true.",
     default=None,
 )
+@click.option(
+    "--seeds",
+    type=str,
+    callback=validate_int_list,
+    help="Random number seeds for inference",
+)
 def predict(
     query_json: Path,
     inference_ckpt_path: Path | None = None,
@@ -184,6 +197,7 @@ def predict(
     msa_and_templates_only: bool = False,
     device: str = "gpu",
     precision: str | None = None,
+    seeds: list[int] | None = None,
 ):
     """Perform inference on a set of queries defined in the query_json."""
     _torch_gpu_setup()
@@ -215,7 +229,10 @@ def predict(
             if torch.cuda.is_available():
                 precision = "bf16-mixed"
     expt_config.pl_trainer_args.precision = precision
-    
+
+    if seeds:
+        expt_config.experiment_settings.seeds = seeds
+
     expt_runner = InferenceExperimentRunner(
         expt_config,
         num_diffusion_samples,
