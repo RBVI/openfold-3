@@ -14,7 +14,7 @@ dependencies = [
   "numpy",
   "pandas",
   "PyYAML",
-  "requests",
+  "requests==2.32.5",	# Version 2.34.2 caused ColabFold MSA search to fail with Astral Python 3.11
   "scipy",
   "tqdm",
   "typing-extensions",
