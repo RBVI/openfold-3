@@ -328,7 +328,7 @@ def do_setup(non_interactive: bool = False, config_path: Path | None = None):
 # ChimeraX compatibility routine.
 def main(prompt = False, test = False):
     # Call click command to do setup
-    do_setup(['--non_interactive', f'{not prompt}'], standalone_mode=False)
+    do_setup(['--non-interactive', f'{not prompt}'], standalone_mode=False)
 
 if __name__ == "__main__":
     do_setup()
