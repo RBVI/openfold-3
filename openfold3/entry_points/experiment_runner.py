@@ -268,7 +268,8 @@ class ExperimentRunner(ABC):
     @cached_property
     def callbacks(self):
         """Set up and return the list of callbacks."""
-        _callbacks = [SecondsPerIterationProgressBar()]
+#        _callbacks = [SecondsPerIterationProgressBar()]
+        _callbacks = []
 
         if self.memory_snapshot.enabled:
             _callbacks.append(
