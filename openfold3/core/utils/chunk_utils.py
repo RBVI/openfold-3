@@ -351,8 +351,8 @@ class ChunkSizeTuner:
         self.cached_arg_data = None
 
     @staticmethod
-    def _determine_favorable_chunk_size(fn, args, max_chunk_size):
-        logging.info("Tuning chunk size...")
+    def _determine_favorable_chunk_size(fn, args, min_chunk_size, max_chunk_size):
+        logging.debug("Tuning chunk size...")
 
         candidates = [2**l for l in range(int(math.log(max_chunk_size, 2)) + 1)]
         # If someone passed a chunk size that wasn't a power of two, consider it as well

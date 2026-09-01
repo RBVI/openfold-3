@@ -20,7 +20,14 @@ Main run script for OpenFold3. Please see the README for usage details.
 # ruff: noqa: F821
 
 import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 import os
+import sys
+if sys.platform != 'linux' and 'TORCH_LOGS' not in os.environ:
+    # Suppress torch logging of "NOTE: Redirects are currently not supported in Windows or MacOs."
+    os.environ['TORCH_LOGS'] = '-distributed'
+
 from pathlib import Path
 
 import click
@@ -95,6 +102,13 @@ def train(
     expt_runner.setup()
     expt_runner.run()
 
+def validate_int_list(ctx, param, value):
+    if value is None:
+        return []
+    try:
+        return [int(x.strip()) for x in value.split(',')]
+    except ValueError:
+        raise click.BadParameter('Must be a comma-separated list of integers.')
 
 @cli.command()
 @click.option(
@@ -176,6 +190,29 @@ def train(
     type=bool,
     default=True,
     help="Use tf32 precision",
+@click.option(
+    "--msa_and_templates_only",
+    type=bool,
+    default=False,
+    help="Use ColabFold MSA server to get MSAs and templates but don't predict structures.",
+)
+@click.option(
+    "--device",
+    type=click.Choice(["gpu", "cpu", "tpu"]),
+    help="The device to use for prediction: gpu, cpu, tpu. Default is gpu.",
+    default="gpu",
+)
+@click.option(
+    "--precision",
+    type=click.Choice(["bf16-mixed", "32-true"]),
+    help="The floating point precision used by pytorch_lightning.Trainer. Default is bf16-mixed when using CUDA on Linux or Windows, otherwise 32-true.",
+    default=None,
+)
+@click.option(
+    "--seeds",
+    type=str,
+    callback=validate_int_list,
+    help="Random number seeds for inference",
 )
 def predict(
     query_json: Path,
@@ -188,6 +225,10 @@ def predict(
     use_templates: bool | None = None,
     output_dir: Path | None = None,
     use_tf32: bool = True,
+    msa_and_templates_only: bool = False,
+    device: str = "gpu",
+    precision: str | None = None,
+    seeds: list[int] | None = None,
 ):
     """Perform inference on a set of queries defined in the query_json."""
     _configure_torch_backend()
@@ -226,6 +267,19 @@ def predict(
         user_default_runner_yaml_path=user_default_runner_path,
         **runner_args,
     )
+    expt_config.pl_trainer_args.accelerator = device
+
+    if precision is None:
+        precision = 32    # bfloat16 is many times slower than float32 except with Nvidia CUDA.
+        if sys.platform in ('linux', 'win32') and device == 'gpu':
+            import torch
+            if torch.cuda.is_available():
+                precision = "bf16-mixed"
+    expt_config.pl_trainer_args.precision = precision
+
+    if seeds:
+        expt_config.experiment_settings.seeds = seeds
+
     expt_runner = InferenceExperimentRunner(
         expt_config,
         num_diffusion_samples,
@@ -234,10 +288,17 @@ def predict(
         use_templates,
         output_dir,
     )
-
+    if device == 'cpu':
+        expt_runner.model_config['settings']['memory']['eval']['use_deepspeed_evo_attention'] = False
+    
     # Load inference query set
     query_set = InferenceQuerySet.from_json(query_json)
 
+    if msa_and_templates_only:
+        expt_runner.inference_query_set = query_set
+        expt_runner.lightning_data_module.prepare_data()
+        return
+        
     # Run the forward pass
     try:
         expt_runner.setup()

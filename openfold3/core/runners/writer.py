@@ -188,6 +188,7 @@ class OF3OutputWriter(BasePredictionWriter):
     ):
         """Writes confidence scores to disk"""
         plddt = confidence_scores["plddt"]
+        pae = confidence_scores["pae"]
         pde = confidence_scores["pde"]
         gpde = confidence_scores["gpde"]
         pae = confidence_scores["pae"]

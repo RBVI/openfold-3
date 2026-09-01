@@ -109,9 +109,9 @@ class DataModuleArgs(BaseModel):
     model_config = PydanticConfigDict(extra="forbid")
     batch_size: int = 1
     data_seed: int | None = None
-    num_workers: int = 10
+    num_workers: int = 0
     prefetch_factor: int | None = None
-    num_workers_validation: int = 4
+    num_workers_validation: int = 0
     prefetch_factor_validation: int | None = None
     multiprocessing_context: str | None = "openfold-default"
     persistent_workers: bool = False
@@ -161,7 +161,7 @@ class OutputWritingSettings(BaseModel):
     """
 
     structure_format: Literal["pdb", "cif", "cif.gz"] = "cif"
-    full_confidence_output_format: Literal["json", "npz"] = "json"
+    full_confidence_output_format: Literal["json", "npz"] = "npz"
     full_confidence_output_dtype: Literal["float16", "float32"] = "float16"
     write_features: bool = False
     write_latent_outputs: bool = False

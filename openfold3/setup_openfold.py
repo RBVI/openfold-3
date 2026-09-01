@@ -129,7 +129,6 @@ def _prompt_for_config() -> OpenFoldSetupConfig:
     logger.info(f"2) Download all parameters ({', '.join(all_checkpoints)})")
     logger.info("3) Download a specific parameter by name")
     choice = input("Enter your choice (1/2/3, default: 1): ").strip() or "1"
-
     if choice == "1":
         selected_parameters = "default"
     elif choice == "2":
@@ -311,7 +310,7 @@ def run_setup(config: OpenFoldSetupConfig) -> None:
     default=None,
     help="Path to a JSON file containing an OpenFoldSetupConfig.",
 )
-def main(non_interactive: bool = False, config_path: Path | None = None):
+def do_setup(non_interactive: bool = False, config_path: Path | None = None):
     """Set up OpenFold3 model parameters."""
     if config_path is not None:
         config = OpenFoldSetupConfig.model_validate_json(config_path.read_text())
@@ -326,6 +325,9 @@ def main(non_interactive: bool = False, config_path: Path | None = None):
     setup_config_path.write_text(config.model_dump_json(indent=4))
     logger.info(f"Setup configuration saved to {setup_config_path}")
 
+# ChimeraX compatibility routine.
+def main(prompt = False, test = False):
+    do_setup(non_interactive = not prompt)
 
 if __name__ == "__main__":
-    main()
+    do_setup()
