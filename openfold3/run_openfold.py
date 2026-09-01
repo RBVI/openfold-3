@@ -190,6 +190,7 @@ def validate_int_list(ctx, param, value):
     type=bool,
     default=True,
     help="Use tf32 precision",
+)
 @click.option(
     "--msa_and_templates_only",
     type=bool,
