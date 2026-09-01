@@ -421,6 +421,7 @@ class ChunkSizeTuner:
             self.cached_chunk_size = self._determine_favorable_chunk_size(
                 fn=representative_fn,
                 args=args,
+                min_chunk_size=None,	# Not used
                 max_chunk_size=max_chunk_size,
             )
             self.cached_arg_data = arg_data
