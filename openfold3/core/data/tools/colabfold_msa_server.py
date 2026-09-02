@@ -840,7 +840,8 @@ class ColabFoldQueryRunner:
                     )
 
     def _save_raw_output(self, source: Path, relative_path: str) -> None:
-        if self.colabfold_output_dir is not None:
+        if (self.colabfold_output_dir is not None and
+            not source.samefile(self.colabfold_output_dir / relative_path)):
             shutil.copytree(
                 source,
                 self.colabfold_output_dir / relative_path,
@@ -1355,7 +1356,7 @@ def preprocess_colabfold_msas(
                 directory_names.append("mappings")
             for directory_name in directory_names:
                 source = output_directory / directory_name
-                if source.exists():
+                if source.exists() and not source.samefile(saved_output_directory / directory_name):
                     shutil.copytree(
                         source,
                         saved_output_directory / directory_name,
