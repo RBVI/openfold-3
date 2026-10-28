@@ -36,8 +36,8 @@ dependencies = [
     "biotite>=1.6",
     "rdkit",
     "pdbeccdutils",
-    "kalign-python",
-    "requests",
+    "kalign-python ; sys_platform != 'win32'",
+    "requests==2.32.5",	# Version 2.34.2 caused ColabFold MSA search to fail with Astral Python 3.11
     "awscli",
     "awscrt",
     "boto3",
@@ -76,7 +76,7 @@ optional-dependencies.cuequivariance = [
     "torch>=2.7",
 ]
 optional-dependencies.deepspeed = [
-    "deepspeed>=0.18.7",
+    "deepspeed==0.18.7 ; sys_platform != 'win32'",
 ]
 
 [project.scripts]
@@ -92,7 +92,7 @@ test = [
     "pytest",
     "ruff==0.16.0",  # keep in sync with pixi.toml
     "awscli",
-    "aria2",
+    "aria2 ; sys_platform != 'darwin'",
     "pytest-xdist",
     "pytest-cov",
     "pytest-benchmark",

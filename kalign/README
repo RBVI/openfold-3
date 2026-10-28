@@ -1,0 +1,17 @@
+Binaries for kalign2.  Mac and Linux binaries come from Anaconda, and Windows comes from NIH.
+
+Mac
+
+https://anaconda.org/channels/bioconda/packages/kalign2/files
+bioconda/kalign2/2.04/osx-64/kalign2-2.04-h18d8cf3_8.tar.bz2  Dec 12, 2024
+bioconda/kalign2/2.04/osx-arm64/kalign2-2.04-hbdacb55_8.tar.bz2  Dec 10, 2024
+
+Linux
+
+https://anaconda.org/channels/bioconda/packages/kalign2/files
+bioconda/kalign2/2.04/linux-64/kalign2-2.04-h7b50bb2_8.tar.bz2  Dec 13, 2024
+bioconda/kalign2/2.04/linux-aarch64/kalign2-2.04-h661a7b0_8.tar.bz2 Dec 10, 2024
+
+Windows
+
+https://ftp.ncbi.nlm.nih.gov/toolbox/gbench/kalign

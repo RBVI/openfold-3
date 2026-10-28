@@ -137,7 +137,6 @@ def _prompt_for_config() -> OpenFoldSetupConfig:
     logger.info(f"2) Download all parameters ({', '.join(all_checkpoints)})")
     logger.info("3) Download a specific parameter by name")
     choice = input("Enter your choice (1/2/3, default: 1): ").strip() or "1"
-
     if choice == "1":
         selected_parameters = "default"
     elif choice == "2":
@@ -350,10 +349,10 @@ def run_setup(config: OpenFoldSetupConfig) -> None:
         "update_biotite_ccd in --config."
     ),
 )
-def main(
-    non_interactive: bool = False,
-    config_path: Path | None = None,
-    skip_biotite_ccd_update: bool = False,
+def do_setup(
+        non_interactive: bool = False,
+        config_path: Path | None = None,
+        skip_biotite_ccd_update: bool = False,
 ):
     """Set up OpenFold3 model parameters."""
     if config_path is not None:
@@ -372,6 +371,11 @@ def main(
     setup_config_path.write_text(config.model_dump_json(indent=4))
     logger.info(f"Setup configuration saved to {setup_config_path}")
 
+# ChimeraX compatibility routine.
+def main(prompt = False, test = False):
+    # Call click command to do setup
+    arguments = [] if prompt else ['--non-interactive']
+    do_setup(arguments, standalone_mode=False)
 
 if __name__ == "__main__":
-    main()
+    do_setup()

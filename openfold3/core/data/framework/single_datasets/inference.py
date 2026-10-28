@@ -379,7 +379,9 @@ class InferenceDataset(Dataset):
         generator = torch.Generator().manual_seed(int(seed))
 
         try:
+            logger.info(f'Creating features for {query_id}')
             features = self.create_all_features(query, rng=rng, generator=generator)
+            logger.info(f'Finished creating features for {query_id}')
             features["query_id"] = query_id
             features["seed"] = torch.tensor([seed])
             features["repeated_sample"] = torch.tensor(

@@ -326,7 +326,8 @@ class ExperimentRunner(ABC):
     @cached_property
     def callbacks(self):
         """Set up and return the list of callbacks."""
-        _callbacks = [SecondsPerIterationProgressBar()]
+#        _callbacks = [SecondsPerIterationProgressBar()]
+        _callbacks = []
 
         if self.memory_snapshot.enabled:
             _callbacks.append(
@@ -390,6 +391,7 @@ class ExperimentRunner(ABC):
                 "strategy": self.strategy,
                 "callbacks": self.callbacks,
                 "logger": self.loggers,
+                "enable_progress_bar": False,
             }
         )
 
@@ -875,8 +877,11 @@ class InferenceExperimentRunner(ExperimentRunner):
         self._log_model_config()
         logger.info(f"Loading weights from {self.ckpt_path}")
         ckpt = load_checkpoint(self.ckpt_path)
+        logger.info("Finished loading weights")
+        logger.info('Loading model state dictionary')
         state_dict, _ = get_state_dict_from_checkpoint(ckpt, init_from_ema_weights=True)
         self._load_state_dict_with_version_validation(state_dict)
+        logger.info('Finished loading model state dictionary')
 
     def run(self, inference_query_set) -> None:
         """Set up the experiment environment."""
@@ -890,12 +895,13 @@ class InferenceExperimentRunner(ExperimentRunner):
                 return
 
         self.inference_query_set = inference_query_set
-        logger.info("Beginning inference prediction")
+        logger.info("Beginning prediction inference")
         self.trainer.predict(
             model=self.lightning_module,
             datamodule=self.lightning_data_module,
             return_predictions=False,
         )
+        logger.info("Finished prediction inference")
 
     @cached_property
     def callbacks(self):
@@ -997,9 +1003,8 @@ class InferenceExperimentRunner(ExperimentRunner):
         self.cleanup_intermediates()
 
         if self.is_rank_zero and self.log_dir.is_dir() and not os.listdir(self.log_dir):
-            print("Removing empty log directory...")
+            logger.debug("Removing empty log directory...")
             self.log_dir.rmdir()
-
 
 class WandbHandler:
     """Handles WandB logger initialization and configuration storage.
