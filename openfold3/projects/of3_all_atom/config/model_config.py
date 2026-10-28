@@ -90,6 +90,9 @@ model_selection_metric_weights_config = mlc.FrozenConfigDict(
     }
 )
 
+from sys import platform
+triton_available = (platform == 'linux')  # Triton is linux only
+
 model_config = mlc.ConfigDict(
     {
         "settings": {
@@ -116,7 +119,7 @@ model_config = mlc.ConfigDict(
                     "tune_chunk_size": tune_chunk_size,
                     "use_deepspeed_evo_attention": False,
                     "use_cueq_triangle_kernels": False,
-                    "use_triton_triangle_kernels": True,
+                    "use_triton_triangle_kernels": triton_available,
                     "use_lma": False,
                     "msa_module": {
                         "swiglu_chunk_token_cutoff": None,
