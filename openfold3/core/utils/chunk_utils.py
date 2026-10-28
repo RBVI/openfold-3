@@ -352,7 +352,7 @@ class ChunkSizeTuner:
         self.cached_chunk_sizes: list[tuple[Any, int, int]] = []
 
     @staticmethod
-    def _determine_favorable_chunk_size(fn, args, min_chunk_size, max_chunk_size):
+    def _determine_favorable_chunk_size(fn, args, max_chunk_size):
         logging.debug("Tuning chunk size...")
 
         candidates = [2**l for l in range(int(math.log(max_chunk_size, 2)) + 1)]
