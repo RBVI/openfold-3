@@ -47,7 +47,7 @@ dependencies = [
     "wandb",
     "func_timeout",
     "tqdm",
-    "triton-windows==3.9.0 ; sys_platform == 'win32'",
+    "triton-windows==3.9.0.post30 ; sys_platform == 'win32'",
     "typing-extensions",
     "lmdb",
 ]
