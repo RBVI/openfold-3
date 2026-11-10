@@ -30,7 +30,7 @@ dependencies = [
     "numpy",
     "scipy",
     "pandas",
-    "torch", # ==2.5.1",
+    "torch == 2.15.0 || == 2.11.0", # 2.11.0 is the newest for CUDA 12, otherwise use 2.15.0
     "ml-collections",
     "pytorch-lightning >=2.1",
     "biotite>=1.6",
