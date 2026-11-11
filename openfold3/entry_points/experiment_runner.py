@@ -127,6 +127,21 @@ def _model_update_with_mps_preset(model_update: ModelUpdate) -> ModelUpdate:
     )
 
 
+def _model_update_with_cpu_preset(model_update: ModelUpdate) -> ModelUpdate:
+    """Add the `cpu` preset to `model_update` unless it's already present.
+
+    `model_update.custom` still overrides any value from the preset, since
+    presets are applied before `custom` (see
+    `ProjectEntry.get_model_config_with_update`).
+    """
+    if "cpu" in model_update.presets:
+        return model_update
+    return ModelUpdate(
+        presets=[*model_update.presets, "cpu"],
+        custom=model_update.custom,
+    )
+
+
 class ExperimentRunner(ABC):
     """Abstract class for experiments"""
 
@@ -166,6 +181,8 @@ class ExperimentRunner(ABC):
         model_update = self.model_update
         if _accelerator_will_use_mps(self.pl_trainer_args.accelerator):
             model_update = _model_update_with_mps_preset(model_update)
+        elif self.pl_trainer_args.accelerator == 'cpu':
+            model_update = _model_update_with_cpu_preset(model_update)
         return self.project_entry.get_model_config_with_update(model_update)
 
     @cached_property

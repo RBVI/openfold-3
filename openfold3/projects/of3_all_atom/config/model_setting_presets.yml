@@ -57,3 +57,17 @@ mps:
     template:
       template_pair_stack:
         clear_cache_between_blocks: true
+
+# CPU defaults. Auto-applied when accelerator resolves to
+# cpu -- see ExperimentRunner.model_config in entry_points/experiment_runner.py.
+# offload_inference targets discrete-GPU VRAM pressure, which doesn't exist
+# on cpu memory, so it's disabled here.
+cpu:
+  settings:
+    memory:
+      eval:
+        # No Triton on CPU so the base `True` default
+        # (model_config.py) always fails.
+        use_triton_triangle_kernels: false
+        offload_inference:
+          msa_module: false
