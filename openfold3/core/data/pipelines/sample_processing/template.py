@@ -21,6 +21,9 @@ import numpy as np
 from biotite.structure import AtomArray
 from biotite.structure.io.pdbx import CIFFile
 
+import logging
+logger = logging.getLogger(__name__)
+
 from openfold3.core.data.primitives.quality_control.logging_utils import (
     log_runtime_memory,
 )
