@@ -2179,7 +2179,7 @@ class TemplatePreprocessor:
                     pass
 
         else:
-            print("No chains with templates to preprocess.")
+            logger.info("No chains with templates to preprocess.")
             return
 
         # Update the dataset cache/inference query set with the preprocessed template
