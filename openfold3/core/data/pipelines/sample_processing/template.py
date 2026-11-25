@@ -130,6 +130,11 @@ def process_template_structures_of3(
             use_roda_monomer_format=use_roda_monomer_format,
         )
 
+        # Log the template PDB and chain ids used for each query chain
+        pdb_chain_ids = [str(pdb_chain_id) for pdb_chain_id in sampled_template_data.keys()]
+        tnames = " ".join(pdb_chain_ids) if pdb_chain_ids else "none"
+        logger.info(f'Using templates for chain {chain_id}: {tnames}')
+
         # Map token positions to template atom arrays
         template_slices[chain_id] = align_template_to_query(
             sampled_template_data=sampled_template_data,
