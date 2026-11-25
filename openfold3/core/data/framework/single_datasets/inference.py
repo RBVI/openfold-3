@@ -347,6 +347,7 @@ class InferenceDataset(Dataset):
             query, preprocessed_atom_array, n_tokens
         )
         features.update(msa_features)
+        logger.info(f'Number of sequences in MSA: {msa_features["msa"].shape[0]}')
 
         # Template features
         template_features = self.create_template_features(
